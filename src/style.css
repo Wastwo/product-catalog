@@ -1,5 +1,15 @@
+@import url('https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,200..800&family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&display=swap');
 @import 'tailwindcss';
 
 @theme {
-  --color-tokopedia: #00aa5b;
+  --font-display: 'Bricolage Grotesque', sans-serif;
+  --font-sans: 'Inter', sans-serif;
+  --color-brand-primary: #00aa5b;
+  --color-secondary-accent: var(--color-amber-500);
+  --color-page-bg: var(--color-slate-100);
+  --color-page-bg-alt: var(--color-slate-50);
+  --color-card-bg: #ffffff;
+  --color-card-border: var(--color-slate-200);
+  --color-text-primary: var(--color-slate-800);
+  --color-text-muted: var(--color-slate-500);
 }
