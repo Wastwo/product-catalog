@@ -1,4 +1,6 @@
 <script setup>
+import ProductItem from './ProductItem.vue'
+
 defineProps({
   masterProduk: {
     type: Array,
@@ -88,5 +90,7 @@ const emit = defineEmits(['retry'])
     </div>
   </div>
 
-  <div v-else class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4"></div>
+  <div v-else class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
+    <ProductItem v-for="produk in masterProduk" :key="produk.id" :produk="produk" />
+  </div>
 </template>
