@@ -1,10 +1,17 @@
 <script setup>
 import { ref, onMounted } from 'vue'
 import ProductList from './components/katalog/ProductList.vue'
+import ProductSearch from './components/katalog/ProductSearch.vue'
 
 const masterProduk = ref([])
 const isLoading = ref(true)
 const errorMessage = ref('')
+const searchQuery = ref('')
+const selectedCategory = ref('Semua')
+const sortByPrice = ref('default')
+const filteredProducts = ref([])
+const isFiltering = ref(false)
+let debounceTimer = null
 
 const dummyData = [
   {
@@ -66,9 +73,9 @@ onMounted(() => {
 
 <template>
   <div class="min-h-screen bg-page-bg p-4 md:p-8">
-    <div class="max-w-6xl mx-auto">
+    <div class="max-w-6xl mx-auto space-y-6">
       <div
-        class="flex items-center justify-between bg-white p-4 rounded-xl border border-card-border shadow-sm mb-6"
+        class="flex items-center justify-between bg-white p-4 rounded-xl border border-card-border shadow-sm"
       >
         <div class="flex items-center gap-3">
           <div
@@ -112,6 +119,14 @@ onMounted(() => {
           <span class="font-sans text-xs font-semibold text-white">Refresh Data</span>
         </button>
       </div>
+
+      <ProductSearch
+        :filtered-products="filteredProducts"
+        :is-filtering="isFiltering"
+        v-model:search-query="searchQuery"
+        v-model:sort-by-price="sortByPrice"
+        v-model:selected-category="selectedCategory"
+      />
 
       <ProductList
         :master-produk="masterProduk"
