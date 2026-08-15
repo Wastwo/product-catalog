@@ -1,10 +1,17 @@
 <script setup>
-import { ref, onMounted } from 'vue'
+import { ref, onMounted, watch } from 'vue'
 import ProductList from './components/katalog/ProductList.vue'
+import ProductSearch from './components/katalog/ProductSearch.vue'
 
 const masterProduk = ref([])
 const isLoading = ref(true)
 const errorMessage = ref('')
+const searchQuery = ref('')
+const selectedCategory = ref('Semua')
+const sortByPrice = ref('default')
+const filteredProducts = ref([])
+const isFiltering = ref(false)
+let debounceTimer = null
 
 const dummyData = [
   {
@@ -46,18 +53,63 @@ const loadKatalogProduk = () => {
     }, 1500)
   })
 }
+
 const loadData = async () => {
   isLoading.value = true
   errorMessage.value = ''
   try {
     const response = await loadKatalogProduk()
     masterProduk.value = response
+    applyFilterAndSort()
   } catch (error) {
     errorMessage.value = error.message
   } finally {
     isLoading.value = false
   }
 }
+
+const applyFilterAndSort = () => {
+  let masterProdukCloned = [...masterProduk.value]
+
+  if (searchQuery.value.trim() !== '') {
+    const cleanedQuery = searchQuery.value.trim().toLowerCase()
+    masterProdukCloned = masterProdukCloned.filter(
+      (item) =>
+        item.nama.toLowerCase().includes(cleanedQuery) ||
+        item.kategori.toLowerCase().includes(cleanedQuery),
+    )
+  }
+
+  if (selectedCategory.value !== 'Semua') {
+    masterProdukCloned = masterProdukCloned.filter(
+      (item) => item.kategori === selectedCategory.value,
+    )
+  }
+
+  if (sortByPrice.value === 'asc') {
+    masterProdukCloned = masterProdukCloned.sort((a, b) => a.harga - b.harga)
+  } else if (sortByPrice.value === 'desc') {
+    masterProdukCloned = masterProdukCloned.sort((a, b) => b.harga - a.harga)
+  }
+
+  filteredProducts.value = masterProdukCloned
+}
+
+const resetFilters = () => {
+  searchQuery.value = ''
+  selectedCategory.value = 'Semua'
+  sortByPrice.value = 'default'
+}
+
+watch([searchQuery, selectedCategory, sortByPrice], () => {
+  if (debounceTimer) clearTimeout(debounceTimer)
+  isFiltering.value = true
+
+  debounceTimer = setTimeout(() => {
+    applyFilterAndSort()
+    isFiltering.value = false
+  }, 350)
+})
 
 onMounted(() => {
   loadData()
@@ -66,9 +118,9 @@ onMounted(() => {
 
 <template>
   <div class="min-h-screen bg-page-bg p-4 md:p-8">
-    <div class="max-w-6xl mx-auto">
+    <div class="max-w-6xl mx-auto space-y-6">
       <div
-        class="flex items-center justify-between bg-white p-4 rounded-xl border border-card-border shadow-sm mb-6"
+        class="flex items-center justify-between bg-white p-4 rounded-xl border border-card-border shadow-sm"
       >
         <div class="flex items-center gap-3">
           <div
@@ -113,11 +165,20 @@ onMounted(() => {
         </button>
       </div>
 
+      <ProductSearch
+        :filtered-products="filteredProducts"
+        :is-filtering="isFiltering"
+        v-model:search-query="searchQuery"
+        v-model:sort-by-price="sortByPrice"
+        v-model:selected-category="selectedCategory"
+      />
+
       <ProductList
-        :master-produk="masterProduk"
+        :filtered-products="filteredProducts"
         :is-loading="isLoading"
         :error-message="errorMessage"
         @retry="loadData"
+        @reset-filter="resetFilters"
       />
     </div>
   </div>
