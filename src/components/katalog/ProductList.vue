@@ -2,7 +2,7 @@
 import ProductItem from './ProductItem.vue'
 
 defineProps({
-  masterProduk: {
+  filteredProducts: {
     type: Array,
     default: () => [],
   },
@@ -16,7 +16,7 @@ defineProps({
   },
 })
 
-const emit = defineEmits(['retry'])
+const emit = defineEmits(['retry', 'reset-filter'])
 </script>
 
 <template>
@@ -63,34 +63,39 @@ const emit = defineEmits(['retry'])
   </div>
 
   <div
-    v-else-if="masterProduk.length === 0"
-    class="flex flex-col justify-center items-center gap-4 bg-white rounded-xl border border-card-border p-12 text-center my-8"
+    v-else-if="filteredProducts.length === 0"
+    class="bg-white rounded-2xl border border-card-border/80 p-10 md:p-14 text-center shadow-sm"
   >
-    <svg
-      class="w-8 h-8"
-      xmlns="http://www.w3.org/2000/svg"
-      viewBox="0 0 24 24"
-      fill="none"
-      stroke="currentColor"
-      stroke-width="2"
-      stroke-linecap="round"
-      stroke-linejoin="round"
+    <div
+      class="w-16 h-16 bg-page-bg rounded-full flex items-center justify-center mx-auto mb-4 text-text-muted"
     >
-      <path
-        d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"
-      ></path>
-      <polyline points="3.27 6.96 12 12.01 20.73 6.96"></polyline>
-      <line x1="12" y1="22.08" x2="12" y2="12"></line>
-    </svg>
-    <div class="flex flex-col justify-center items-center gap-1">
-      <h3 class="font-bold font-sans text-text-primary text-lg">Produk Tidak Ditemukan</h3>
-      <p class="text-text-muted font-sans text-sm">
-        Saat ini belum ada produk yang tersedia di katalog.
-      </p>
+      <svg
+        class="w-8 h-8"
+        fill="none"
+        viewBox="0 0 24 24"
+        stroke="currentColor"
+        stroke-width="1.75"
+      >
+        <path
+          stroke-linecap="round"
+          stroke-linejoin="round"
+          d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
+        />
+      </svg>
     </div>
+    <h3 class="font-display font-bold text-text-primary text-lg">Produk Tidak Ditemukan</h3>
+    <p class="text-text-muted text-sm mt-1 max-w-sm mx-auto">
+      Coba kata kunci lain atau ubah filter kategori Anda.
+    </p>
+    <button
+      @click="emit('reset-filter')"
+      class="mt-5 px-5 py-2.5 bg-brand-primary hover:bg-emerald-600 active:bg-emerald-700 text-white rounded-xl text-xs font-bold tracking-wide transition-all shadow-sm hover:shadow"
+    >
+      Reset Filter
+    </button>
   </div>
 
   <div v-else class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
-    <ProductItem v-for="produk in masterProduk" :key="produk.id" :produk="produk" />
+    <ProductItem v-for="produk in filteredProducts" :key="produk.id" :produk="produk" />
   </div>
 </template>
