@@ -1,5 +1,5 @@
 <script setup>
-import { ref, onMounted } from 'vue'
+import { ref, onMounted, watch } from 'vue'
 import ProductList from './components/katalog/ProductList.vue'
 import ProductSearch from './components/katalog/ProductSearch.vue'
 
@@ -53,18 +53,63 @@ const loadKatalogProduk = () => {
     }, 1500)
   })
 }
+
 const loadData = async () => {
   isLoading.value = true
   errorMessage.value = ''
   try {
     const response = await loadKatalogProduk()
     masterProduk.value = response
+    applyFilterAndSort()
   } catch (error) {
     errorMessage.value = error.message
   } finally {
     isLoading.value = false
   }
 }
+
+const applyFilterAndSort = () => {
+  let masterProdukCloned = [...masterProduk.value]
+
+  if (searchQuery.value.trim() !== '') {
+    const cleanedQuery = searchQuery.value.trim().toLowerCase()
+    masterProdukCloned = masterProdukCloned.filter(
+      (item) =>
+        item.nama.toLowerCase().includes(cleanedQuery) ||
+        item.kategori.toLowerCase().includes(cleanedQuery),
+    )
+  }
+
+  if (selectedCategory.value !== 'Semua') {
+    masterProdukCloned = masterProdukCloned.filter(
+      (item) => item.kategori === selectedCategory.value,
+    )
+  }
+
+  if (sortByPrice.value === 'asc') {
+    masterProdukCloned = masterProdukCloned.sort((a, b) => a.harga - b.harga)
+  } else if (sortByPrice.value === 'desc') {
+    masterProdukCloned = masterProdukCloned.sort((a, b) => b.harga - a.harga)
+  }
+
+  filteredProducts.value = masterProdukCloned
+}
+
+const resetFilters = () => {
+  searchQuery.value = ''
+  selectedCategory.value = 'Semua'
+  sortByPrice.value = 'default'
+}
+
+watch([searchQuery, selectedCategory, sortByPrice], () => {
+  if (debounceTimer) clearTimeout(debounceTimer)
+  isFiltering.value = true
+
+  debounceTimer = setTimeout(() => {
+    applyFilterAndSort()
+    isFiltering.value = false
+  }, 350)
+})
 
 onMounted(() => {
   loadData()
@@ -129,10 +174,11 @@ onMounted(() => {
       />
 
       <ProductList
-        :master-produk="masterProduk"
+        :filtered-products="filteredProducts"
         :is-loading="isLoading"
         :error-message="errorMessage"
         @retry="loadData"
+        @reset-filter="resetFilters"
       />
     </div>
   </div>
