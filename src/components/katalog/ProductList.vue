@@ -16,7 +16,7 @@ defineProps({
   },
 })
 
-const emit = defineEmits(['retry', 'reset-filter'])
+const emit = defineEmits(['retry', 'reset-filter', 'select-product'])
 </script>
 
 <template>
@@ -96,6 +96,6 @@ const emit = defineEmits(['retry', 'reset-filter'])
   </div>
 
   <div v-else class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
-    <ProductItem v-for="produk in filteredProducts" :key="produk.id" :produk="produk" />
+    <ProductItem v-for="produk in filteredProducts" :key="produk.id" :produk="produk" @select-product="emit('select-product', $event)" />
   </div>
 </template>

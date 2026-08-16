@@ -8,6 +8,8 @@ defineProps({
   },
 })
 
+const emit = defineEmits(['select-product'])
+
 function formatCurrency(nominal) {
   return new Intl.NumberFormat('id-ID', {
     style: 'currency',
@@ -18,9 +20,13 @@ function formatCurrency(nominal) {
 </script>
 
 <template>
-  <BaseCard>
+  <BaseCard @click="emit('select-product', produk)" class="cursor-pointer group">
     <template #media>
-      <img :src="produk.gambar" :alt="produk.nama" class="w-full h-40 object-cover bg-page-bg" />
+      <img
+        :src="produk.gambar"
+        :alt="produk.nama"
+        class="w-full h-40 object-cover bg-page-bg group-hover:scale-105 transition-transform duration-300"
+      />
       <span
         class="absolute top-2 left-2 bg-brand-primary text-white text-[10px] font-sans font-bold px-2 py-0.5 rounded-full shadow-sm"
       >
@@ -30,7 +36,7 @@ function formatCurrency(nominal) {
 
     <div>
       <h3
-        class="text-xs md:text-sm font-display font-semibold text-text-primary line-clamp-2 leading-snug"
+        class="text-xs md:text-sm font-display font-semibold text-text-primary group-hover:text-brand-primary transition-colors line-clamp-2 leading-snug"
       >
         {{ produk.nama }}
       </h3>

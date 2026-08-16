@@ -2,6 +2,7 @@
 import { ref, onMounted, watch } from 'vue'
 import ProductList from './components/katalog/ProductList.vue'
 import ProductSearch from './components/katalog/ProductSearch.vue'
+import ProductDetailModal from './components/katalog/ProductDetailModal.vue'
 
 const masterProduk = ref([])
 const isLoading = ref(true)
@@ -12,6 +13,19 @@ const sortByPrice = ref('default')
 const filteredProducts = ref([])
 const isFiltering = ref(false)
 let debounceTimer = null
+
+const selectedProduct = ref(null)
+const isDetailOpen = ref(false)
+
+const openDetailModal = (product) => {
+  selectedProduct.value = product
+  isDetailOpen.value = true
+}
+
+const closeDetailModal = () => {
+  isDetailOpen.value = false
+  selectedProduct.value = null
+}
 
 const dummyData = [
   {
@@ -179,6 +193,13 @@ onMounted(() => {
         :error-message="errorMessage"
         @retry="loadData"
         @reset-filter="resetFilters"
+        @select-product="openDetailModal"
+      />
+
+      <ProductDetailModal
+        :is-open="isDetailOpen"
+        :produk="selectedProduct"
+        @close="closeDetailModal"
       />
     </div>
   </div>
